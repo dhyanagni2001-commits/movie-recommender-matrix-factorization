@@ -2,7 +2,7 @@
 
 A complete end-to-end recommender system built from scratch using Matrix Factorization (MF) on the MovieLens-100K dataset.
 
-**This project implements:**
+# **This project implements:**
 
 ✔️ Collaborative Filtering with latent factor models
 
@@ -28,7 +28,7 @@ NDCG@K
 
 This project is built without using surprise/lightfm/recommenders library — core MF is implemented manually for learning clarity.
 
-**🚀 Demo (What the project does)**
+# **🚀 Demo (What the project does)**
 
 trains matrix factorization on MovieLens 100K
 
@@ -48,30 +48,7 @@ choose K
 
 view recommended movies
 
-**📂 Project Structure**
-movie-recommender-matrix-factorization
-│
-├── data/
-│   └── ml-100k/                # MovieLens dataset
-│
-├── src/
-│   ├── data_utils.py           # data loading & preprocessing
-│   ├── mf_model.py             # matrix factorization model
-│   ├── metrics.py              # evaluation metrics
-│   ├── train_and_recommend.py  # training + evaluation pipeline
-│   └── streamlit_app.py        # UI for recommendations
-│
-├── artifacts/
-│   ├── mf_model.pkl            # trained model
-│   ├── id_mappings.pkl         # user/item index mapping
-│   ├── movies.pkl              # movie title mapping
-│   ├── precision_at_10_hist.png
-│   ├── recall_at_10_hist.png
-│   └── ndcg_at_10_hist.png
-│
-└── README.md
-
-**🧠 What is Matrix Factorization?**
+# **🧠 What is Matrix Factorization?**
 
 User–item ratings matrix is mostly empty.
 
@@ -110,7 +87,7 @@ MSE + L2 regularization
 
 using Stochastic Gradient Descent.
 
-**📊 Results (your actual model’s performance)**
+# **📊 Results (your actual model’s performance)**
 
 Your trained model achieved:
 
@@ -135,7 +112,7 @@ NDCG consistent with ranking quality
 
 baseline MF — no tuning yet
 
-**🛠 Installation & Setup**
+# **🛠 Installation & Setup**
 
 1️⃣ Clone repo
 git clone <your-repo-url>
@@ -157,7 +134,7 @@ scikit-learn
 matplotlib
 streamlit
 
-**📥 Download dataset**
+# **📥 Download dataset**
 
 Download MovieLens-100K:
 
@@ -170,7 +147,7 @@ data/ml-100k/
 
 So that files like u.data exist there.
 
-**🧾 Train the model**
+# **🧾 Train the model**
 
 From inside src:
 
@@ -189,7 +166,7 @@ Artifacts are saved in:
 
 artifacts/
 
-**📈 Visualizations**
+# **📈 Visualizations**
 
 Generated automatically:
 
@@ -201,7 +178,7 @@ ndcg_at_10_hist.png
 
 These show distribution across users, not just averages.
 
-**🖥 Run Streamlit UI**
+# **🖥 Run Streamlit UI**
 
 From project root:
 
@@ -216,7 +193,7 @@ slider for Top-K
 
 recommended movies table
 
-**🎓 Educational Value**
+# **🎓 Educational Value**
 
 This project helps understand:
 
@@ -230,7 +207,7 @@ evaluation beyond RMSE
 
 deploying a simple recommender UI
 
-**🔮 Future Work (roadmap)**
+# **🔮 Future Work (roadmap)**
 
 You can extend this project with:
 
