@@ -1,4 +1,4 @@
-🎬 #**Movie Recommendation System using Matrix Factorization**
+# 🎬 **Movie Recommendation System using Matrix Factorization**
 
 A complete end-to-end recommender system built from scratch using Matrix Factorization (MF) on the MovieLens-100K dataset.
 
