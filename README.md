@@ -1,4 +1,4 @@
-***🎬 Movie Recommendation System using Matrix Factorization***
+#🎬 Movie Recommendation System using Matrix Factorization
 
 A complete end-to-end recommender system built from scratch using Matrix Factorization (MF) on the MovieLens-100K dataset.
 
@@ -136,6 +136,7 @@ NDCG consistent with ranking quality
 baseline MF — no tuning yet
 
 **🛠 Installation & Setup**
+
 1️⃣ Clone repo
 git clone <your-repo-url>
 cd movie-recommender-matrix-factorization
