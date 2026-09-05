@@ -1,226 +1,310 @@
-# 🎬 **Movie Recommendation System using Matrix Factorization**
+# Movie Recommender with Matrix Factorization
 
-A complete end-to-end recommender system built from scratch using Matrix Factorization (MF) on the MovieLens-100K dataset.
+An educational recommender-system implementation that learns user and movie representations from explicit MovieLens ratings.
 
-# **This project implements:**
+The project implements bias-aware matrix factorization with NumPy, trains it using stochastic gradient descent, evaluates rating prediction and top-K ranking behavior, saves model artifacts, and exposes recommendations through a Streamlit interface.
 
-✔️ Collaborative Filtering with latent factor models
+> **Evaluation note:** The results below are from one reported experiment. Their interpretation depends on the data split, relevance threshold, candidate set, exclusion of training items, and aggregation method. They should not be treated as general performance claims without a fully reproducible evaluation protocol and baseline comparisons.
 
-✔️ Explicit feedback training (ratings 1–5)
+## Motivation
 
-✔️ Bias-aware MF (user + item bias + global mean)
+Recommendation systems must learn from a user-item matrix in which most ratings are missing. I built this project to understand the mechanics of collaborative filtering without relying on a recommender-system library that hides model training and ranking logic.
 
-✔️ Evaluation metrics:
+The project explores:
 
-RMSE / MAE
+- Representing users and movies with latent vectors.
+- Incorporating global, user, and movie rating biases.
+- Optimizing parameters with stochastic gradient descent.
+- Separating rating-prediction metrics from ranking metrics.
+- Generating recommendations for unrated movies.
+- Persisting trained artifacts for an interactive application.
 
-Precision@K
+## Model
 
-Recall@K
+For user $u$ and movie $i$, the predicted rating is:
 
-NDCG@K
+$$
+\hat{r}_{ui} = \mu + b_u + b_i + p_u^Tq_i
+$$
 
-✔️ Per-user metric histograms
+where:
 
-✔️ Interactive Streamlit UI for browsing recommendations
+- $\mu$ is the global mean rating.
+- $b_u$ is the learned user bias.
+- $b_i$ is the learned movie bias.
+- $p_u$ is the user's latent vector.
+- $q_i$ is the movie's latent vector.
 
-✔️ Saved model artifacts for reuse
+The parameters are trained on observed ratings by minimizing squared prediction error with L2 regularization:
 
-This project is built without using surprise/lightfm/recommenders library — core MF is implemented manually for learning clarity.
+$$
+\mathcal{L} = \sum_{(u,i) \in \Omega}
+(r_{ui} - \hat{r}_{ui})^2
++ \lambda
+(\lVert p_u \rVert^2 + \lVert q_i \rVert^2 + b_u^2 + b_i^2)
+$$
 
-# **🚀 Demo (What the project does)**
+Here, $\Omega$ is the set of observed user-movie ratings and $\lambda$ controls regularization.
 
-trains matrix factorization on MovieLens 100K
+## Pipeline
 
-learns hidden user and movie representations
+```mermaid
+flowchart TD
+    A[MovieLens ratings] --> B[Train-test split]
+    B --> C[Train matrix factorization]
+    C --> D[Predict held-out ratings]
+    C --> E[Rank candidate movies]
+    D --> F[RMSE and MAE]
+    E --> G[Precision Recall and NDCG]
+    C --> H[Saved artifacts]
+    H --> I[Streamlit interface]
+```
 
-recommends top-K movies to any user
+## Implemented Components
 
-evaluates recommendation quality
+- Explicit-feedback collaborative filtering
+- User and movie latent factors
+- Global, user, and movie bias terms
+- Stochastic-gradient-descent training
+- L2 regularization
+- Top-N recommendation generation
+- RMSE and MAE calculation
+- Precision@K, Recall@K, and NDCG@K calculation
+- Per-user metric distributions
+- Serialized model artifacts
+- Streamlit recommendation browser
 
-visualizes how well model performs per user
+The core matrix-factorization training logic is implemented directly rather than through Surprise, LightFM, or a similar recommender framework.
 
-launches an interface where you can:
+## Dataset
 
-select a user
+The project uses the [MovieLens 100K dataset](https://grouplens.org/datasets/movielens/100k/), which contains 100,000 explicit ratings from 943 users for 1,682 movies.
 
-choose K
+Place the extracted dataset under:
 
-view recommended movies
-
-# **🧠 What is Matrix Factorization?**
-
-User–item ratings matrix is mostly empty.
-
-We approximate it as:
-
-R ≈ P × Qᵀ
-
-
-Where:
-
-R → user-item rating matrix
-
-P → user latent vectors (n_users × k)
-
-Q → item latent vectors (n_items × k)
-
-Prediction formula:
-
-r̂_ui = μ + b_u + b_i + p_u · q_i
-
-
-Where:
-
-μ = global average rating
-
-bᵤ = user bias
-
-bᵢ = item bias
-
-pᵤ, qᵢ = k-dim latent vectors
-
-We train parameters by minimizing:
-
-MSE + L2 regularization
-
-
-using Stochastic Gradient Descent.
-
-# **📊 Results (your actual model’s performance)**
-
-Your trained model achieved:
-
-RMSE = ~0.94
-MAE  = ~0.74
-
-
-Ranking metrics:
-
-Metric	K=5	K=10	K=20
-Precision@K	~0.03	~0.046	~0.048
-Recall@K	~0.01	~0.028	~0.067
-NDCG@K	~0.028	~0.042	~0.055
-
-Interpretation:
-
-RMSE/MAE are solid for MovieLens-100K
-
-recall increases with K (expected)
-
-NDCG consistent with ranking quality
-
-baseline MF — no tuning yet
-
-# **🛠 Installation & Setup**
-
-1️⃣ Clone repo
-git clone <your-repo-url>
-cd movie-recommender-matrix-factorization
-
-2️⃣ (Recommended) create virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-3️⃣ Install dependencies
-pip install -r requirements.txt
-
-
-(If you didn’t make requirements.txt yet, install manually:)
-
-numpy
-pandas
-scikit-learn
-matplotlib
-streamlit
-
-# **📥 Download dataset**
-
-Download MovieLens-100K:
-
-https://grouplens.org/datasets/movielens/100k/
-
-Unzip and place into:
-
+```text
 data/ml-100k/
+```
 
+The training script expects MovieLens files such as `u.data` to be available in that directory.
 
-So that files like u.data exist there.
+Review the dataset's usage terms before redistributing its files.
 
-# **🧾 Train the model**
+## Repository Structure
 
-From inside src:
+```text
+Movie-Recommender-Matrix-Factorization/
+├── artifacts/
+├── data/
+│   └── ml-100k/
+├── src/
+│   ├── train_and_recommend.py
+│   └── streamlit_app.py
+└── README.md
+```
 
+| Path | Purpose |
+| --- | --- |
+| `src/train_and_recommend.py` | Trains the model, evaluates it, and writes artifacts |
+| `src/streamlit_app.py` | Displays recommendations for a selected user |
+| `data/ml-100k/` | Local MovieLens dataset files |
+| `artifacts/` | Trained parameters, metadata, metrics, and generated plots |
+
+Generated artifacts should record the code version, hyperparameters, random seed, split definition, and dataset version that produced them.
+
+## Setup
+
+### Prerequisites
+
+- Python 3.9 or later
+- Sufficient memory to rank the MovieLens candidate set
+
+Clone the repository:
+
+```bash
+git clone https://github.com/dhyanagni2001-commits/Movie-Recommender-Matrix-Factorization.git
+cd Movie-Recommender-Matrix-Factorization
+```
+
+Create and activate a virtual environment:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+On Windows PowerShell:
+
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+Install the main dependencies:
+
+```bash
+python -m pip install numpy pandas scikit-learn matplotlib streamlit
+```
+
+For reproducible setup, the repository should include a pinned `requirements.txt` or another dependency-lock file.
+
+## Training and Evaluation
+
+After placing MovieLens 100K in `data/ml-100k/`, run:
+
+```bash
 cd src
-python3 train_and_recommend.py
+python train_and_recommend.py
+```
 
+The script trains the model, calculates the configured metrics, and writes reusable files under `artifacts/`.
 
-This will:
+Generated visualizations may include:
 
-✔ train MF
-✔ compute metrics
-✔ save model artifacts
-✔ generate histograms
-
-Artifacts are saved in:
-
-artifacts/
-
-# **📈 Visualizations**
-
-Generated automatically:
-
+```text
 precision_at_10_hist.png
-
 recall_at_10_hist.png
-
 ndcg_at_10_hist.png
+```
 
-These show distribution across users, not just averages.
+These plots show variation across evaluated users. They should be read together with the number of eligible users and the exact relevance definition.
 
-# **🖥 Run Streamlit UI**
+## Streamlit Interface
 
-From project root:
+From the repository root, run:
 
+```bash
 streamlit run src/streamlit_app.py
+```
 
+The interface allows a user ID and recommendation-list length to be selected and displays the model's highest-ranked candidate movies.
 
-You will see:
+The interface demonstrates artifact loading and inference. It is not an online personalization system and does not collect new feedback or retrain the model from user activity.
 
-dropdown of users
+## Reported Results
 
-slider for Top-K
+The repository reports the following approximate values from a training run:
 
-recommended movies table
+### Rating Prediction
 
-# **🎓 Educational Value**
+| Metric | Reported value |
+| --- | ---: |
+| RMSE | 0.94 |
+| MAE | 0.74 |
 
-This project helps understand:
+### Top-K Ranking
 
-collaborative filtering from scratch
+| K | Precision@K | Recall@K | NDCG@K |
+| ---: | ---: | ---: | ---: |
+| 5 | 0.030 | 0.010 | 0.028 |
+| 10 | 0.046 | 0.028 | 0.042 |
+| 20 | 0.048 | 0.067 | 0.055 |
 
-latent vector learning
+The values show that recall increased as the recommendation list became longer in this run. They do not, by themselves, establish whether the model performs well.
 
-ranking metrics and tradeoffs
+For a defensible comparison, the experiment must document:
 
-evaluation beyond RMSE
+- How ratings were divided into training and test sets
+- Whether the split was random, per-user, or chronological
+- Which rating values were considered relevant
+- Whether movies observed during training were excluded from recommendation candidates
+- Whether ranking covered all unseen movies or sampled negatives
+- Which users were excluded from metric calculation
+- Whether metrics were macro- or micro-averaged
+- The random seed and hyperparameters
+- Results for non-personalized and bias-only baselines
 
-deploying a simple recommender UI
+## Metric Interpretation
 
-# **🔮 Future Work (roadmap)**
+### RMSE and MAE
 
-You can extend this project with:
+RMSE and MAE measure error on held-out rating predictions. RMSE penalizes large errors more heavily. Neither metric directly measures whether the best movies appear near the top of a recommendation list.
 
-⏩ implicit feedback (clicks / views instead of ratings)
+### Precision@K
 
-🎯 BPR / WARP ranking loss
+Precision@K measures the fraction of the first $K$ recommendations that satisfy the experiment's relevance rule. Its magnitude changes with the relevance threshold and candidate protocol.
 
-🧭 cold-start handling with content features
+### Recall@K
 
-🧠 hybrid recommender (metadata + MF)
+Recall@K measures the fraction of a user's held-out relevant movies that appear in the first $K$ recommendations. Recall commonly increases with $K$ because the model is allowed to return more items.
 
-🧪 cross-validation hyperparameter search
+### NDCG@K
 
-☁️ deployment on Streamlit Cloud / HuggingFace Spaces
+NDCG@K gives more credit when relevant items appear earlier. Its implementation must state whether relevance is binary or graded and how users without eligible relevant items are handled.
 
-🧩 neighborhood models + MF ensemble
+## Recommended Baselines
+
+At minimum, compare the model with:
+
+- Global-mean rating prediction
+- Global mean with user and movie biases
+- Most-popular unseen movies
+- User- or item-based nearest-neighbor collaborative filtering
+- Random ranking as a ranking sanity check
+
+Reporting a baseline under the same split and candidate protocol makes the model's contribution interpretable.
+
+## Design Tradeoffs
+
+### Manual Matrix Factorization
+
+Implementing training directly makes gradient updates and regularization easy to inspect. It provides fewer optimizations, diagnostics, and safeguards than a maintained recommender library.
+
+### Explicit Feedback
+
+Ratings express preference intensity but are sparse and subject to selection bias because users rate only a small, non-random subset of movies. Many deployed recommenders instead learn from implicit events such as views and clicks.
+
+### Pointwise Squared-Error Loss
+
+Squared error directly optimizes rating prediction. It does not directly optimize the ordering of the top recommendations; pairwise ranking losses may align more closely with ranking objectives.
+
+### Random Interaction Split
+
+If interactions are split randomly, evaluation is simple and gives each side broad coverage. A chronological split more closely represents recommending future items from past behavior and avoids using later activity to predict earlier activity.
+
+### Saved Model Artifacts
+
+Persisting trained factors makes the Streamlit application faster to start. Artifacts can become incompatible or misleading when preprocessing, ID mappings, or model code changes unless they are versioned.
+
+## Known Limitations
+
+- The README does not fully specify the evaluation protocol used for the reported metrics.
+- Results are not compared with baselines under the same protocol.
+- A single split does not show variability across random seeds.
+- Matrix factorization cannot recommend reliably for unseen users or movies.
+- Movie metadata is not used to address cold start.
+- Explicit ratings contain observation and selection bias.
+- The training objective optimizes rating error rather than ranking quality.
+- The Streamlit interface supports offline demonstration rather than online learning.
+- Automated tests and continuous integration are not documented.
+- A virtual environment is currently committed to the repository.
+
+## Repository Cleanup
+
+Before presenting the project:
+
+- Remove `venv/` from version control.
+- Add `.venv/`, `venv/`, caches, and generated local files to `.gitignore`.
+- Add a pinned dependency file.
+- Confirm that artifacts can be recreated from a clean checkout.
+- Avoid committing dataset files unless their redistribution terms permit it.
+- Add the exact experiment configuration beside every reported result.
+
+## Possible Improvements
+
+- Add popularity and bias-only baselines.
+- Add deterministic per-user or chronological data splitting.
+- Evaluate across multiple seeds and report mean and standard deviation.
+- Add hyperparameter search without using the test set for selection.
+- Add ranking losses such as Bayesian Personalized Ranking.
+- Add movie genres and metadata for a hybrid cold-start model.
+- Add unit tests for prediction, exclusion, ranking, and metric calculations.
+- Add continuous integration for tests and reproducible training checks.
+- Version the model, preprocessing logic, and ID mappings together.
+- Add an evaluation report generated from a single configuration file.
+
+## What I Learned
+
+This project helped me understand how latent-factor recommenders learn user and item representations, how bias terms affect rating predictions, and how regularization controls model capacity.
+
+It also demonstrated why recommender evaluation is sensitive to experimental design. RMSE, Precision@K, Recall@K, and NDCG@K describe different behaviors, and their values are meaningful only when the split, relevance rule, candidate set, baselines, and aggregation procedure are clearly defined.
